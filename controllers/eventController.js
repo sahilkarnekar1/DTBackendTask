@@ -2,7 +2,7 @@ const { ObjectId } = require('mongodb');
 const fs = require('fs');
 const { eventsCollection } = require('../config/db');
 
-// Create Event
+
 exports.createEvent = async (req, res) => {
     try {
         const filePaths = req.files.map(file => file.path);
@@ -20,7 +20,6 @@ exports.createEvent = async (req, res) => {
     }
 };
 
-// Get Event by ID
 exports.getEventById = async (req, res) => {
     try {
         const { id } = req.query;
@@ -33,7 +32,6 @@ exports.getEventById = async (req, res) => {
     }
 };
 
-// Get Events (Latest/Old)
 exports.getEvents = async (req, res) => {
     try {
         const { type, limit = 5, page = 1 } = req.query;
@@ -55,14 +53,13 @@ exports.getEvents = async (req, res) => {
     }
 };
 
-// Update Event
+
 exports.updateEvent = async (req, res) => {
     try {
         const { id } = req.params;
         const existingEvent = await eventsCollection.findOne({ _id: new ObjectId(id) });
         if (!existingEvent) return res.status(404).json({ error: "Event not found" });
 
-        // Delete old files if new ones are uploaded
         if (req.files.length > 0 && existingEvent.images) {
             existingEvent.images.forEach(filePath => {
                 if (fs.existsSync(filePath)) {
@@ -71,7 +68,7 @@ exports.updateEvent = async (req, res) => {
             });
         }
 
-        // Prepare update data
+
         const updateData = { ...req.body, updatedAt: new Date() };
         if (req.files.length > 0) {
             updateData.images = req.files.map(file => file.path);
@@ -86,7 +83,7 @@ exports.updateEvent = async (req, res) => {
     }
 };
 
-// Delete Event
+
 exports.deleteEvent = async (req, res) => {
     try {
         const { id } = req.params;
@@ -94,7 +91,7 @@ exports.deleteEvent = async (req, res) => {
 
         if (!existingEvent) return res.status(404).json({ error: "Event not found" });
 
-        // Delete images from server
+
         if (existingEvent.images) {
             existingEvent.images.forEach(filePath => {
                 if (fs.existsSync(filePath)) {
